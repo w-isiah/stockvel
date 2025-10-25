@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Jack JJ Club{% endblock title %}</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <style>
+        .content-wrapper {
+            padding-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding-top: 100px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+<body class="hold-transition layout-top-nav">
+    <div class="wrapper">
+
+        <nav class="main-header navbar navbar-expand-md navbar-light navbar-white fixed-top">
+            <div class="container">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                    <img src="{% static 'dist/img/jj_logo.jpg' %}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity:.8">
+                    <span class="brand-text font-weight-light">Jack JJ Club</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a href="{% url 'index' %}" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Documentation</a></li>
+                    </ul>
+
+                    <form class="form-inline ml-3">
+                        <div class="input-group input-group-sm">
+                            <input class="form-control form-control-navbar" type="search" placeholder="Search">
+                            <div class="input-group-append">
+                                <button class="btn btn-navbar" type="submit"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <ul class="navbar-nav ml-auto">
+                        {% if unapproved_contributions_count > 0 %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" data-toggle="dropdown" href="#">
+                                <i class="far fa-bell"></i>
+                                <span class="badge badge-warning navbar-badge">{{ unapproved_contributions_count }}</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <span class="dropdown-item dropdown-header">{{ unapproved_contributions_count }} New Contribution(s)</span>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'contributions' %}" class="dropdown-item">
+                                    <i class="fas fa-file-invoice-dollar mr-2"></i> View Contributions
+                                </a>
+                            </div>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown user-menu">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                                {% if current_user and current_user.avatar %}
+                                <img src="{{ MEDIA_URL }}{{ current_user.avatar }}" class="user-image img-circle elevation-2" alt="User Avatar">
+                                {% else %}
+                                <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="user-image img-circle elevation-2" alt="Default Avatar">
+                                {% endif %}
+                                <span class="d-none d-md-inline">
+                                    {% if current_user %}{{ current_user.username }}{% else %}Guest{% endif %}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <li class="user-header bg-primary">
+                                    {% if current_user and current_user.avatar %}
+                                    <img src="{{ MEDIA_URL }}{{ current_user.avatar }}" class="img-circle elevation-2" alt="User Avatar">
+                                    {% else %}
+                                    <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="img-circle elevation-2" alt="Default Avatar">
+                                    {% endif %}
+                                    <p>
+                                        {% if current_user %}
+                                        {{ current_user.first_name }} {{ current_user.last_name }} - Member
+                                        <small>Joined {{ current_user.date_joined|date:"D M Y" }}</small>
+                                        {% else %}
+                                        Guest User
+                                        {% endif %}
+                                    </p>
+                                </li>
+                                <li class="user-footer">
+                                    <a href="{% url 'profile' %}" class="btn btn-default btn-flat">Profile</a>
+                                    {% if current_user %}
+                                    <a href="{% url 'logout' %}" class="btn btn-default btn-flat float-right">Sign out</a>
+                                    {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-default btn-flat float-right">Sign in</a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="content-wrapper">
+            <div class="content">
+                <div class="container-fluid py-3">
+                    {% block content %}{% endblock content %}
+                </div>
+            </div>
+        </div>
+
+        <footer class="main-footer text-center">
+            <strong>&copy; 2025 <a href="#">Jack JJ Club</a>.</strong> All rights reserved.
+        </footer>
+    </div>
+    {% block scripts %}
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    {% if messages %}
+    <script>
+        $(document).ready(function() {
+            {% for message in messages %}
+            toastr.{{ message.tags }}("{{ message|safe }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+    {% endblock scripts %}
+
+    {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

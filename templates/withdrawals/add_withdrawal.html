@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Request Withdrawal{% endblock title %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Request Withdrawal</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'list_withdrawals' %}">Withdrawals</a></li>
+                        <li class="breadcrumb-item active">New Request</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">New Withdrawal Request</h3>
+                        </div>
+                        <form method="post" action="{% url 'add_withdrawal' %}">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="id_amount">Amount (UGX)</label>
+                                    <input type="number" name="amount" class="form-control" id="id_amount" placeholder="Enter amount" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_withdrawal_date">Withdrawal Date</label>
+                                    <input type="date" name="withdrawal_date" class="form-control" id="id_withdrawal_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_reason">Reason</label>
+                                    <textarea name="reason" class="form-control" id="id_reason" rows="3" placeholder="Explain the reason for the withdrawal"></textarea>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary btn-block">Submit Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock content %}

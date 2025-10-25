@@ -1,0 +1,62 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Request Loan{% endblock title %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Request Loan</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'list_loans' %}">Loans</a></li>
+                        <li class="breadcrumb-item active">New Request</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">New Loan Request</h3>
+                        </div>
+                        <form method="post" action="{% url 'add_loan' %}">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="id_amount">Loan Amount (UGX)</label>
+                                    <input type="number" name="amount" class="form-control" id="id_amount" placeholder="Enter amount" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_interest_rate">Interest Rate (%)</label>
+                                    <input type="number" step="0.01" name="interest_rate" class="form-control" id="id_interest_rate" placeholder="e.g., 5 for 5%" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_repayment_period">Repayment Period (Months)</label>
+                                    <input type="number" name="repayment_period" class="form-control" id="id_repayment_period" placeholder="Enter repayment period" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_reason">Reason</label>
+                                    <textarea name="reason" class="form-control" id="id_reason" rows="3" placeholder="Explain the reason for the loan" required></textarea>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary btn-block">Submit Loan Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock content %}

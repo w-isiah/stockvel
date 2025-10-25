@@ -1,0 +1,216 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Contributions{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-fixedcolumns/css/fixedColumns.bootstrap4.min.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2 align-items-center">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Contributions</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a href="{% url 'add_contribution' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Add Contribution
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="card card-primary card-outline">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">List of Contributions</h3>
+                {% if request.session.role == "admin" %}
+                <button id="approve-button" class="btn btn-sm btn-primary">
+                    <i class="fas fa-check"></i> Approve Selected
+                </button>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <form id="approve-form">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table id="contributionsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    {% if request.session.role == "admin" %}
+                                    <th class="text-center"><input type="checkbox" id="select-all"></th>
+                                    {% endif %}
+                                    <th>#</th>
+                                    <th>Member ID</th>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Period</th>
+                                    <th>Description</th>
+                                    <th>Evidence</th>
+                                    <th>Approved</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in contributions %}
+                                <tr>
+                                    {% if request.session.role == "admin" %}
+                                    <td class="text-center">
+                                        {% if not c.approved %}
+                                        <input type="checkbox" name="approved_ids" value="{{ c.id }}">
+                                        {% endif %}
+                                    </td>
+                                    {% endif %}
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ c.member_id }}</td>
+                                    <td>{{ c.first_name }} {{ c.last_name }}</td>
+                                    <td>UGX {{ c.amount|intcomma }}</td>
+                                    <td>{{ c.type|title }}</td>
+                                    <td>{{ c.contribution_date|date:"F d, Y" }}</td>
+                                    <td>{{ c.period|date:"F d, Y" }}</td>
+                                    <td>
+                                        {% if c.description %}
+                                            {{ c.description }}
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if c.evidence %}
+                                        {% if c.evidence|lower|slice:"-4:" in ".png.jpg.gif" or c.evidence|lower|slice:"-5:" in ".jpeg" %}
+                                        <a href="{{ MEDIA_URL }}{{ c.evidence }}" target="_blank">
+                                            <img src="{{ MEDIA_URL }}{{ c.evidence }}" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;">
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ MEDIA_URL }}{{ c.evidence }}" target="_blank" download>
+                                            <i class="fas fa-file-download"></i> Download
+                                        </a>
+                                        {% endif %}
+                                        {% else %}
+                                        None
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ c.approved|yesno:'success,danger' }}">
+                                            {{ c.approved|yesno:'Yes,No' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ c.created_at|date:"F d, Y" }}</td>
+                                    <td>
+                                        {% if request.session.role == "admin" or request.session.user_id == c.user_id %}
+                                        <a href="{% url 'edit_contribution' c.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% else %}
+                                        Edit-Ad
+                                        {% endif %}
+                                        {% if request.session.role == "super_admin" %}
+                                        <form action="{% url 'delete_contribution' c.id %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        Del-s_Ad
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="13" class="text-center">No contributions found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-fixedcolumns/js/dataTables.fixedColumns.min.js' %}"></script>
+
+<script>
+    $(function() {
+        // Initializes the DataTables plugin with specific options for the contributionsTable.
+        const table = $('#contributionsTable').DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            ordering: true,
+            pageLength: 10,
+            scrollX: true,
+            fixedColumns: {
+                // Adjusts fixed columns based on the user's role.
+                start: {% if request.session.role == "admin" %}5{% else %}4{% endif %},
+                end: 1
+            }
+        });
+
+        // Handles the 'select all' checkbox functionality.
+        $('#select-all').on('change', function() {
+            const isChecked = $(this).is(':checked');
+            table.rows({ page: 'current' }).nodes().to$().find('input[type="checkbox"]').prop('checked', isChecked);
+        });
+
+        // Handles the click event for the 'Approve Selected' button.
+        $('#approve-button').on('click', function(e) {
+            e.preventDefault();
+
+            // Collects the IDs of all checked contributions.
+            const selectedIds = $('input[name="approved_ids"]:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            // Checks if any contributions were selected before proceeding.
+            if (selectedIds.length === 0) {
+                toastr.warning("Please select at least one contribution.");
+                return;
+            }
+
+            // Asks for user confirmation before sending the request.
+            if (!confirm(`Are you sure you want to approve ${selectedIds.length} contribution(s)?`)) {
+                return;
+            }
+
+            // Sends an AJAX POST request to the server.
+            $.ajax({
+                url: "{% url 'approve_multiple_contributions' %}",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    approved_ids: selectedIds
+                },
+                success: function(response) {
+                    // Displays a success message and then reloads the page after a short delay.
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                },
+                error: function(xhr) {
+                    // Displays an error message if the request fails.
+                    const errorMsg = xhr.responseJSON?.error || "An error occurred while approving contributions.";
+                    toastr.error(errorMsg);
+                }
+            });
+        });
+    });
+</script>
+{% endblock extra_js %}

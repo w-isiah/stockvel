@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Edit Withdrawal{% endblock title %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Edit Withdrawal Request</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'list_withdrawals' %}">Withdrawals</a></li>
+                        <li class="breadcrumb-item active">Edit</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header">
+                            <h3 class="card-title">Edit Withdrawal #{{ withdrawal.id }}</h3>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="id_amount">Amount (UGX)</label>
+                                    <input type="number" name="amount" class="form-control" id="id_amount" value="{{ withdrawal.amount }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_withdrawal_date">Withdrawal Date</label>
+                                    <input type="date" name="withdrawal_date" class="form-control" id="id_withdrawal_date" value="{{ withdrawal.withdrawal_date|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_reason">Reason</label>
+                                    <textarea name="reason" class="form-control" id="id_reason" rows="3" required>{{ withdrawal.reason }}</textarea>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary btn-block">Update Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock content %}

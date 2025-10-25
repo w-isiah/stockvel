@@ -1,0 +1,94 @@
+{% extends 'layouts/auth_base.html' %}
+{% load static %}
+
+{% block title %}Registration Page{% endblock title %}
+
+{% block bodyclass %}register-page{% endblock bodyclass %}
+
+{% block content %}
+<div class="register-box">
+  <div class="register-logo">
+
+    <img src="{% static 'dist/img/jj_logo.jpg' %}" 
+         alt="Jack JJ Club Logo" 
+         style="max-height: 60px; display: block; margin: 0 auto;">
+  </div>
+
+  <div class="card">
+    <div class="card-body register-card-body">
+      <p class="login-box-msg">Register a new membership</p>
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger mb-2">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="input-group mb-3">
+            <input type="text" name="username" class="form-control" placeholder="Username" required>
+            <div class="input-group-append">
+                <div class="input-group-text"><span class="fas fa-user"></span></div>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="email" name="email" class="form-control" placeholder="Email" required>
+            <div class="input-group-append">
+                <div class="input-group-text"><span class="fas fa-envelope"></span></div>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="text" name="first_name" class="form-control" placeholder="First Name">
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="text" name="last_name" class="form-control" placeholder="Last Name">
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="text" name="phone_number" class="form-control" placeholder="Phone Number">
+            <div class="input-group-append">
+                <div class="input-group-text"><span class="fas fa-phone"></span></div>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="password" name="password" class="form-control" placeholder="Password" required>
+            <div class="input-group-append">
+                <div class="input-group-text"><span class="fas fa-lock"></span></div>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+            <div class="input-group-append">
+                <div class="input-group-text"><span class="fas fa-lock"></span></div>
+            </div>
+        </div>
+
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" id="agreeTerms" name="terms" value="agree">
+              <label for="agreeTerms">
+                I agree to the <a href="#">terms</a>
+              </label>
+            </div>
+          </div>
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+          </div>
+        </div>
+      </form>
+
+      <p class="mt-4 mb-2 text-center">
+        Have an account? <a href="{% url 'login' %}" class="text-center">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

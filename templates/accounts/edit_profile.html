@@ -1,0 +1,116 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock title %}
+
+{% block content %}
+<div class="content-wrapper">
+  <!-- Page Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2 align-items-center">
+        <div class="col-sm-6">
+          <h1>Edit Profile</h1>
+        </div>
+        <div class="col-sm-6 text-right">
+          <a href="{% url 'profile' %}" class="btn btn-secondary">
+            <i class="fas fa-user"></i> View Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-user-edit"></i> Update Your Information</h3>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Username -->
+                    <div class="form-group">
+                      <label for="id_username">Username</label>
+                      <input type="text" name="username" id="id_username"
+                             value="{{ user.username }}" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- Email -->
+                    <div class="form-group">
+                      <label for="id_email">Email</label>
+                      <input type="email" name="email" id="id_email"
+                             value="{{ user.email }}" class="form-control" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- First Name -->
+                    <div class="form-group">
+                      <label for="id_first_name">First Name</label>
+                      <input type="text" name="first_name" id="id_first_name"
+                             value="{{ user.first_name }}" class="form-control">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- Last Name -->
+                    <div class="form-group">
+                      <label for="id_last_name">Last Name</label>
+                      <input type="text" name="last_name" id="id_last_name"
+                             value="{{ user.last_name }}" class="form-control">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                  <label for="id_phone">Phone</label>
+                  <input type="text" name="phone" id="id_phone"
+                         value="{{ user.phone }}" class="form-control">
+                </div>
+
+                <!-- Role (admin only) -->
+                {% if user.role == "admin" %}
+                <div class="form-group">
+                  <label for="id_role">Role</label>
+                  <input type="text" name="role" id="id_role"
+                         value="{{ user.role }}" class="form-control">
+                </div>
+                {% endif %}
+
+                <!-- Avatar -->
+                <div class="form-group">
+                  <label for="id_avatar">Avatar</label>
+                  {% if user.avatar %}
+                    <div class="mb-2">
+                      <img src="{{ MEDIA_URL }}{{ user.avatar }}"
+                           alt="Avatar" class="img-thumbnail" style="width:100px; height:100px; object-fit:cover;">
+                    </div>
+                  {% endif %}
+                  <input type="file" name="avatar" id="id_avatar" class="form-control">
+                </div>
+              </div>
+
+              <div class="card-footer text-right">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Update Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

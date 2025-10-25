@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdminLTE 3 | Top Navigation + Sidebar</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+</head>
+<body class="hold-transition sidebar-collapse layout-top-nav">
+<div class="wrapper">
+
+  <!-- Header -->
+  {% block header %}
+    {% include 'includes/navigation-light.html' %}
+  {% endblock header %}
+
+  <!-- Sidebar -->
+  {% block sidebar %}
+    {% include 'includes/sidebar.html' %}
+  {% endblock sidebar %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="content">
+      <div class="container">
+        {% block content %}{% endblock content %}
+      </div>
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Footer -->
+  {% block footer %}
+    {% include 'includes/footer.html' %}
+  {% endblock footer %}
+
+  <!-- Control Sidebar -->
+  {% block control_sidebar %}
+    <aside class="control-sidebar control-sidebar-dark">
+      <!-- Control sidebar content goes here -->
+    </aside>
+  {% endblock control_sidebar %}
+
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+{% include 'includes/scripts.html' %}
+{% block extra_scripts %}{% endblock extra_scripts %}
+
+</body>
+</html>

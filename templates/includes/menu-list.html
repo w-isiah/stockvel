@@ -1,0 +1,166 @@
+{% load i18n static admin_adminlte %}
+
+<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+    <!-- Add icons to the links using the .nav-icon class
+           with font-awesome or any other icon font library -->
+
+           {% admin_get_menu as app_list %}
+           {% if app_list %}
+           {% for app in app_list %}
+           {% if app.has_perms and not app.pinned %}
+           <li class="nav-item {% if 'dashboard' in parent %} menu-open {% endif %}">
+            <a class="nav-link {% if app_label != app.label and app.url not in request.path|urlencode  %} collapsed{% endif %}"
+            data-bs-toggle="collapse" data-bs-target="#submenu-{{ app.app_label }}" href="{{ app.url }}">
+            <i class="nav-icon {{ app.icon }}"></i>
+            <p>
+              {{ app.label|slice:10 }}{% if app.label|length > 10 %}..{% endif %}
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+
+          {% if app.models %}
+          <ul class="nav nav-treeview">
+            {% for model in app.models %}
+            {% if model.url %}
+            <li class="nav-item">
+              <a class="nav-link {% if 'bootstrap-tables' in segment or model.url in request.path|urlencode %} active {% endif %}"
+              href="{{ model.url }}">
+              <i class="far fa-circle nav-icon"></i>
+              <p>{{ model.label }}</p>
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">{{ model.label }}</li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+
+
+
+<li class="nav-item {% if 'search' in parent %} menu-open {% endif %}">
+      <a href="#" class="nav-link {% if 'search' in segment %} active {% endif %}">
+        <i class="nav-icon fas fa-search"></i>
+        <p>
+          Search
+          <i class="fas fa-angle-left right"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="#" class="nav-link {% if 'search_simple' in segment %} active {% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Simple Search</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link {% if 'search_enhanced' in segment %} active {% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Enhanced</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+
+
+
+      {% if request.user.is_superuser %}
+      <li class="nav-item {% if 'dashboard' in parent %} menu-open {% endif %}">
+        <a href="#" class="nav-link {% if 'dashboard' in parent %} active {% endif %}">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>
+            Dashboard
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          <li class="nav-item">
+            <a href="{% url 'admin:index' %}" class="nav-link {% if 'index' in segment %} active {% endif %}">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Dashboard v1</p>
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+
+      {% if not request.user.is_superuser %}
+      <li class="nav-item {% if 'dashboard' in parent %} menu-open {% endif %}">
+        <a href="#" class="nav-link {% if 'dashboard' in parent %} active {% endif %}">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>
+            Dashboard
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+        
+          <li class="nav-item">
+            <a href="#" class="nav-link {% if 'dashboardv3' in segment %} active {% endif %}">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Dashboard v3</p>
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+
+    
+
+      <li class="nav-item {% if 'layout' in parent %} menu-open {% endif %}">
+        <a href="#" class="nav-link {% if 'layout' in parent %}active{% endif %}">
+          <i class="nav-icon fas fa-copy"></i>
+          <p>
+            Layout Options
+            <i class="fas fa-angle-left right"></i>
+            <span class="badge badge-info right">6</span>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+         <li class="nav-header">MISCELLANEOUS</li>
+
+         <li class="nav-item">
+          <a href="https://adminlte.io/docs/3.1/" class="nav-link">
+            <i class="nav-icon fas fa-file"></i>
+            <p>Documentation</p>
+          </a>
+        </li>
+
+
+        {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a href="{% url 'logout' %}" class="nav-link">
+            <i class="fa fa-sign-out-alt nav-icon"></i>
+            <p>Logout</p>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a href="{% url 'login' %}" class="nav-link">
+            <i class="fa fa-sign-in-alt nav-icon"></i>
+            <p>Login</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="fa fa-user-plus nav-icon"></i>
+            <p>Register</p>
+          </a>
+        </li>        
+        {% endif %} 
+
+        <li class="nav-item">
+          <a target="_blank" href="https://app-generator.dev/support/" class="nav-link">
+            <i class="fa fa-rocket text-danger nav-icon"></i>
+            <p>Support</p>
+          </a>
+        </li>         
+
+      </ul>

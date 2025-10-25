@@ -1,0 +1,169 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Withdrawals{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2 align-items-center">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Withdrawals</h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a href="{% url 'add_withdrawal' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Add Withdrawal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="card card-primary card-outline">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">List of Withdrawals</h3>
+                {% if request.session.role == "admin" %}
+                <button id="approve-button" class="btn btn-sm btn-primary">
+                    <i class="fas fa-check"></i> Approve Selected
+                </button>
+                {% endif %}
+            </div>
+            
+            <div class="card-body">
+                <form id="approve-form">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table id="withdrawalsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    {% if request.session.role == "admin" %}
+                                    <th class="text-center"><input type="checkbox" id="select-all"></th>
+                                    {% endif %}
+                                    <th>#</th>
+                                    {% if request.session.role == 'admin' %}
+                                    <th>Member ID</th>
+                                    <th>Name</th>
+                                    {% endif %}
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Reason</th>
+                                    <th>Approved</th>
+                                    <th>Submitted On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for withdrawal in withdrawals %}
+                                <tr>
+                                    {% if request.session.role == "admin" %}
+                                    <td class="text-center">
+                                        {% if not withdrawal.approved %}
+                                        <input type="checkbox" name="approved_ids" value="{{ withdrawal.id }}">
+                                        {% endif %}
+                                    </td>
+                                    {% endif %}
+                                    <td>{{ forloop.counter }}</td>
+                                    {% if request.session.role == 'admin' %}
+                                    <td>{{ withdrawal.member_id }}</td>
+                                    <td>{{ withdrawal.first_name }} {{ withdrawal.last_name }}</td>
+                                    {% endif %}
+                                    <td>UGX {{ withdrawal.amount|intcomma }}</td>
+                                    <td>{{ withdrawal.withdrawal_date|date:"F d, Y" }}</td>
+                                    <td>{{ withdrawal.reason|default:"None" }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ withdrawal.approved|yesno:'success,danger' }}">
+                                            {{ withdrawal.approved|yesno:'Yes,No' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ withdrawal.created_at|date:"F d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'edit_withdrawal' withdrawal.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{% url 'delete_withdrawal' withdrawal.id %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this withdrawal?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center">No withdrawals found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+
+<script>
+    $(function () {
+        const table = $('#withdrawalsTable').DataTable({
+            "responsive": true,
+            "autoWidth": false,
+            "ordering": true,
+            "info": true,
+            "paging": true,
+        });
+
+        $('#select-all').on('change', function() {
+            const isChecked = $(this).is(':checked');
+            table.rows({ page: 'current' }).nodes().to$().find('input[type="checkbox"]').prop('checked', isChecked);
+        });
+
+        $('#approve-button').on('click', function(e) {
+            e.preventDefault();
+
+            const selectedIds = $('input[name="approved_ids"]:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            if (selectedIds.length === 0) {
+                toastr.warning("Please select at least one withdrawal.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to approve ${selectedIds.length} withdrawal(s)?`)) {
+                return;
+            }
+
+            $.ajax({
+                url: "{% url 'approve_multiple_withdrawals' %}",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                    'approved_ids[]': selectedIds
+                },
+                success: function(response) {
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON?.error || "An error occurred while approving withdrawals.";
+                    toastr.error(errorMsg);
+                }
+            });
+        });
+    });
+</script>
+{% endblock extra_js %}
